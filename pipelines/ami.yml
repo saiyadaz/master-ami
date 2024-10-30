@@ -1,0 +1,28 @@
+format_version: 10
+pipelines:
+  master-ami:
+    group: Terraform
+    label_template: ${COUNT}
+    lock_behavior: none
+    display_order: -1
+    materials:
+      git-3a51435:
+        git: https://github.com/saiyadaz/master-ami.git
+        shallow_clone: false
+        auto_update: true
+        branch: main
+    secure_variables:
+      TF_VAR_vault_token: AES:aDYeWFSJr2CrxD1kDIaIhA==:+HV6ZPYNVQdomjC4XnZQ61ort1Ys8AMzAVh0wd9y/18
+    stages:
+      - Dev:
+          fetch_materials: true
+          environment_variables:
+            env: dev
+          approval:
+            type: manual
+          allow_only_on_success: false
+          jobs:
+            terraform-apply:
+              tasks:
+                - exec: { command: terraform, arguments: [ "init"], run_if: passed }
+                - exec: { command: terraform, arguments: [ "apply", "-auto-approve"], run_if: passed }
